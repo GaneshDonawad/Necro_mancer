@@ -1,0 +1,9 @@
+# OPTIONAL coverage experiment: test whether this builds on your machine.
+# Not required for first golden-master milestone; legacy Xdebug 2.5.5 may
+# require patching on older toolchains / unsupported architectures.
+FROM php:5.6-cli
+RUN pecl install xdebug-2.5.5 && docker-php-ext-enable xdebug
+WORKDIR /app
+COPY src/ /app/src/
+USER www-data
+ENTRYPOINT ["php", "/app/src/invoice.php"]

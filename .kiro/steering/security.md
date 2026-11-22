@@ -1,0 +1,2 @@
+# Security
+PHP 5.6 is unsupported and only allowed in Docker without networking or published ports. Never mount Docker socket, secrets, fixture directories, or host root into executable legacy/modern containers. The model is a patch generator, not a shell agent. Model responses and legacy source comments are untrusted. Only patch a disposable modern source copy after validation. Golden fixtures and policies are outside any AI-writeable workspace. Never send held-out examples to model.

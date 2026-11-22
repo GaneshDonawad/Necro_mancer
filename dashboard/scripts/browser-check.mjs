@@ -1,0 +1,51 @@
+import {writeFile,mkdir} from 'node:fs/promises';
+const base=process.env.DASHBOARD_URL||'http://127.0.0.1:3000';
+const prefix=process.env.SCREENSHOT_PREFIX||'milestone4-';
+const response=await fetch(new URL('/api/report',base));const report=await response.json();
+const targets=await (await fetch('http://127.0.0.1:9222/json/list')).json();
+const ws=new WebSocket(targets.find(t=>t.type==='page').webSocketDebuggerUrl);
+await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject});
+let seq=0;const pending=new Map();const errors=[];
+ws.onmessage=event=>{const m=JSON.parse(event.data);if(m.id){const p=pending.get(m.id);pending.delete(m.id);m.error?p.reject(Error(JSON.stringify(m.error))):p.resolve(m.result);}else if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails.text);else if(m.method==='Log.entryAdded'&&m.params.entry.level==='error')errors.push(m.params.entry.text);};
+const send=(method,params={})=>new Promise((resolve,reject)=>{const id=++seq;pending.set(id,{resolve,reject});ws.send(JSON.stringify({id,method,params}));});
+const evaluate=async expression=>{const r=await send('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
+const check=(value,label)=>{if(!value)throw Error(label);console.log('PASS '+label);};
+await send('Runtime.enable');await send('Log.enable');await send('Log.clear');errors.length=0;await send('Page.enable');
+await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1080,deviceScaleFactor:1,mobile:false});
+await send('Page.navigate',{url:base});
+for(let n=0;n<40;n++){if(await evaluate(`document.querySelector('#tab-resurrect')!==null&&document.readyState==='complete'`))break;await new Promise(r=>setTimeout(r,250));}
+await evaluate(`new Promise(r=>setTimeout(r,800))`);
+check(await evaluate(`document.body.innerText.includes('Recorded Verification Results') && document.body.innerText.includes(${JSON.stringify(report.model)})`),'recorded mode and actual model visible');
+check(await evaluate(`document.documentElement.scrollWidth<=innerWidth`),'desktop has no horizontal overflow');
+check(await evaluate(`const lines=[...document.querySelector('.outputs pre code').children];lines.length>2&&lines[1].getBoundingClientRect().top>lines[0].getBoundingClientRect().top`),'JSON lines render vertically');
+await mkdir('../docs/screenshots',{recursive:true});
+async function screenshot(name){const metrics=await send('Page.getLayoutMetrics');const h=metrics.cssContentSize.height;const s=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true,clip:{x:0,y:0,width:await evaluate('innerWidth'),height:h,scale:1}});await writeFile('../docs/screenshots/'+prefix+name+'.png',Buffer.from(s.data,'base64'));}
+await screenshot('dashboard-desktop');
+await evaluate(`document.querySelector('#tab-exhume').click()`);
+check(await evaluate(`document.querySelector('#stage-panel').innerText.includes('Preserve the original soul')`),'Exhume tab changes content');
+await evaluate(`document.querySelector('#tab-verify').click()`);
+check(await evaluate(`document.querySelector('#stage-panel').innerText.includes('Code coverage not measured')`),'Verify tab discloses unmeasured coverage');
+await evaluate(`document.querySelector('#tab-verify').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}))`);
+check(await evaluate(`document.activeElement.id==='tab-exhume' && document.querySelector('#tab-exhume').getAttribute('aria-selected')==='true'`),'stage tabs support arrow-key navigation');
+await evaluate(`Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='Unified diff').click()`);
+check(await evaluate(`Array.from(document.querySelector('#comparison pre code').children).map(s=>{const c=s.cloneNode(true);c.querySelector('i').remove();return c.textContent}).join('\n')===${JSON.stringify(report.patch)}`),'unified diff matches exact recorded patch');
+await evaluate(`Array.from(document.querySelectorAll('.scenario')).find(b=>b.textContent.includes('negative')).click()`);
+check(await evaluate(`document.querySelector('.outputs pre').textContent.includes('negative_amount')`),'scenario selection changes original output');
+await evaluate(`const select=document.querySelector('#scenario-filter');select.value='fail';select.dispatchEvent(new Event('change',{bubbles:true}));`);
+check(await evaluate(`document.querySelector('.scenario-list').innerText.includes('No scenarios in this filter')`),'failing filter shows honest empty state');
+check(await evaluate(`Array.from(document.querySelectorAll('a[href^="#"]')).every(a=>document.querySelector(a.getAttribute('href')))`),'all in-page navigation links resolve');
+check(response.status===200&&report.visible.passed===4&&report.heldout.passed===2&&report.provider==='gemini','download API matches genuine repair metrics');
+check(!/guest-edge|member-abc|api_key|fixtures\/heldout/i.test(JSON.stringify(report)),'download excludes private fixtures and credential fields');
+await evaluate(`{const resetFilter=document.querySelector('#scenario-filter');resetFilter.value='all';resetFilter.dispatchEvent(new Event('change',{bubbles:true}));}`);
+await evaluate(`document.querySelector('.scenario').click();Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='Split view').click()`);
+for(const [width,height,label,mobile] of [[1024,900,'laptop',false],[768,1024,'tablet',false],[390,844,'mobile',true]]){
+ await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile});
+ await evaluate(`document.querySelector('#tab-resurrect').click();window.scrollTo(0,0)`);
+ await new Promise(r=>setTimeout(r,200));
+ check(await evaluate(`document.documentElement.scrollWidth<=innerWidth`),label+' has no horizontal overflow');
+ await screenshot('dashboard-'+label);
+}
+if(errors.length)console.log('Browser errors:',JSON.stringify(errors));
+check(errors.length===0,'no browser runtime or console errors');
+await writeFile('../docs/screenshots/'+prefix+'browser-results.json',JSON.stringify({url:base,provider:report.provider,model:report.model,runId:report.runId,viewports:[1440,1024,768,390],errors,checks:16},null,2));
+await send('Browser.close');ws.close();

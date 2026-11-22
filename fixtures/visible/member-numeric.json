@@ -1,0 +1,1 @@
+{"expected":{"customer_id":42,"handling_cents":50,"ok":true,"tax_cents":603,"total_cents":12653,"walk_in":false},"id":"member-numeric","request":{"amount_cents":12000,"customer_id":42}}

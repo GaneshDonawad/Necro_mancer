@@ -1,0 +1,1 @@
+{"expected":{"error":"negative_amount","ok":false},"id":"negative","request":{"amount_cents":-1,"customer_id":"guest"}}

@@ -1,0 +1,19 @@
+services:
+  legacy:
+    build: ./legacy-app
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 64
+    mem_limit: 256m
+    stdin_open: true
+  modern:
+    build: ./modern-app
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 64
+    mem_limit: 256m
+    stdin_open: true

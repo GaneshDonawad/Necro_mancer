@@ -1,0 +1,1 @@
+{"expected":{"customer_id":"guest","handling_cents":0,"ok":true,"tax_cents":500,"total_cents":10500,"walk_in":true},"id":"guest-string","request":{"amount_cents":10000,"customer_id":"guest"}}

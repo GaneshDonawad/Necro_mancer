@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+node_modules/
+.next/
+.env
+.env.*
+!.env.example
+*.tmp*
+necromancer_ws_*
+repair-report.json
+verification-report.json
+heldout-summary.json
+.DS_Store
+# DO NOT ignore .kiro: judges must see it.
+
+# Private evidence and local tooling; golden masters remain untouched on disk.
+.local-runs/
+.tmp/
+.vercel/
+*.tsbuildinfo
+fixtures/heldout/
+fixtures/scenarios.json
+fixtures/manifest.sha256

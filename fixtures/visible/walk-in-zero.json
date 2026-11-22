@@ -1,0 +1,1 @@
+{"expected":{"customer_id":0,"handling_cents":0,"ok":true,"tax_cents":400,"total_cents":8400,"walk_in":true},"id":"walk-in-zero","request":{"amount_cents":8000,"customer_id":0}}
