@@ -2,6 +2,12 @@
 
 An original Kiroween 2026 hackathon project demonstrating **PHP 5.6 → PHP 8.3 modernization with observable behavioral evidence and a zero-trust, free-tier AI repair engine**.
 
+**Live dashboard:** https://necromancer-proof.vercel.app
+
+**Source:** https://github.com/GaneshDonawad/Necro_mancer
+
+[Final evidence and release report](docs/MILESTONE-4-REPORT.md)
+
 ---
 
 ## Quick start (Windows + VS Code)

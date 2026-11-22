@@ -1,0 +1,14 @@
+{
+  "url": "https://necromancer-proof.vercel.app",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "runId": "e176fe6d-e2d8-4255-933c-873fb790caed",
+  "viewports": [
+    1440,
+    1024,
+    768,
+    390
+  ],
+  "errors": [],
+  "checks": 16
+}

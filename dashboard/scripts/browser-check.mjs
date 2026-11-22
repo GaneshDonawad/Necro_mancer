@@ -28,7 +28,7 @@ check(await evaluate(`document.querySelector('#stage-panel').innerText.includes(
 await evaluate(`document.querySelector('#tab-verify').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}))`);
 check(await evaluate(`document.activeElement.id==='tab-exhume' && document.querySelector('#tab-exhume').getAttribute('aria-selected')==='true'`),'stage tabs support arrow-key navigation');
 await evaluate(`Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='Unified diff').click()`);
-check(await evaluate(`Array.from(document.querySelector('#comparison pre code').children).map(s=>{const c=s.cloneNode(true);c.querySelector('i').remove();return c.textContent}).join('\n')===${JSON.stringify(report.patch)}`),'unified diff matches exact recorded patch');
+check(await evaluate(`Array.from(document.querySelector('#comparison pre code').children).map(s=>{const c=s.cloneNode(true);c.querySelector('i').remove();return c.textContent}).join(String.fromCharCode(10))===${JSON.stringify(report.patch)}`),'unified diff matches exact recorded patch');
 await evaluate(`Array.from(document.querySelectorAll('.scenario')).find(b=>b.textContent.includes('negative')).click()`);
 check(await evaluate(`document.querySelector('.outputs pre').textContent.includes('negative_amount')`),'scenario selection changes original output');
 await evaluate(`const select=document.querySelector('#scenario-filter');select.value='fail';select.dispatchEvent(new Event('change',{bubbles:true}));`);

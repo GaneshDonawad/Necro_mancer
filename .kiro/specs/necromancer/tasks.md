@@ -36,3 +36,7 @@ Milestone 3 implementation was performed with Codex. Committed Kiro specs/steeri
 - [x] Independently replay the applied patch and verify unchanged golden masters.
 - [x] Exclude private fixtures, secrets and development artifacts from Git and deployment.
 - [x] Prepare the requested GitHub remote and Vercel dashboard-only release.
+
+- [x] Push reviewed source to GitHub and deploy the sanitized dashboard to Vercel.
+- [x] Test the real public URL, JSON privacy, stage tabs and four responsive layouts.
+- [x] Commit final evidence report and public browser screenshots.
