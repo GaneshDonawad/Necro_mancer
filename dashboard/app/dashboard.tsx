@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { Run } from '../lib/contracts';
 import {Icon,Badge,Code,count,percent,time} from './ui';
 import Verification from './verification';
+import Hero from './hero';
 export default function Dashboard({run:r}:{run:Run}) {
  const [stage,setStage]=useState('resurrect'); const [view,setView]=useState('split');
  const auditVerified=r.status==='REPAIR_VERIFIED'; const isMock=r.provider==='mock';
@@ -18,9 +19,8 @@ export default function Dashboard({run:r}:{run:Run}) {
  {title:'Held-out tests executed',detail:`${count(r.heldout)} · aggregate only`,ok:!!r.heldout,t:null},
  {title:'Repair verified',detail:r.status,ok:auditVerified,t:null}];
  return <div className="shell"><a className="skip" href="#main">Skip to content</a>
- <aside className="sidebar"><a href="#overview" className="brand"><span className="sigil">N</span><span>necromancer<span className="brand-sub">RESURRECTION WITH PROOF</span></span></a><div className="workspace"><span className="workspace-icon">⌘</span><div>Kiroween 2026<small>Project workspace</small></div><span className="muted">⌄</span></div><p className="nav-label">COMMAND CENTER</p><nav aria-label="Main navigation">{[['overview','grid','Overview'],['pipeline','bolt','Resurrection pipeline'],['comparison','code','Code comparison'],['verification','shield','Verification'],['timeline','clock','Repair timeline'],['evidence','file','Evidence vault']].map(([id,icon,label])=><a key={id} href={`#${id}`} aria-label={label}><Icon name={icon}/>{label}</a>)}</nav><div className="sidebar-bottom"><div className="secure"><Icon name="shield"/><div>Evidence first<small>Read-only report viewer</small></div></div><div className="sidebar-foot">♧ Built for the afterlife.<small>NECROMANCER / MILESTONE 03</small></div></div></aside>
- <div className="content"><header className="topbar"><span>Workspace <b>/</b> <strong>Overview</strong></span><div><span className="record-dot"/> RECORDED RUN <span className="avatar">N</span></div></header><main id="main">
- <section id="overview" className="intro"><div><div className="eyebrow">LEGACY CODE. NEW LIFE. SAME SOUL.</div><h1>Resurrection with <em>Proof.</em></h1><p>Your legacy, modernized. Every change backed by evidence.</p></div><a className="button" href="/api/report"><Icon name="download"/> Export evidence</a></section>
+ <div className="content"><Hero run={r}/><main id="main">
+ <div className="workspace-heading"><div><div className="eyebrow">THE EVIDENCE WORKSPACE</div><h2>Every change tells a story.</h2></div><span className="muted">Explore the recorded run below</span></div>
  <div className="record-banner"><div><Icon name="clock"/><span><strong>Recorded Verification Results</strong><span className="banner-meta"> A completed audit snapshot. No live repair is running.</span></span></div><span className="mono">SCHEMA v{r.schemaVersion}</span></div>
  <div className="provenance"><span className="warning-symbol">!</span><div><strong>{isMock?'Mock audit · live AI provenance unverified':'Evidence provenance'}</strong><p>{r.warnings[0]||'Results are reported by the local audit, not independently signed.'}</p><details><summary>Inspect provenance notes ({r.warnings.length})</summary><ul>{r.warnings.map(w=><li key={w}>{w}</li>)}</ul></details></div></div>
  <div className="run-heading"><div><span className="status-square"><Icon name={auditVerified?'check':'clock'}/></span><div><h2>Latest resurrection <Badge tone={isMock?'amber':auditVerified?'green':'gray'}>{isMock?'Mock audit':r.status.replaceAll('_',' ')}</Badge></h2><p className="mono">{r.runId?`RUN ${r.runId}`:'No run available'} <span> / </span> {time(r.timestamp)}</p></div></div><span className="runtime">PHP 5.6 <span>→</span> PHP 8.3</span></div>
